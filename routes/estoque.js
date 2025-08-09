@@ -154,6 +154,78 @@ router.put('/atualizar', async (req, res) => {
   }
 });
 
+// PUT /estoque/atualizar-simples - Atualiza estoque sem registrar movimentação
+router.put('/atualizar-simples', async (req, res) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    const { produto_nome, tamanho, nova_quantidade } = req.body;
+
+    // Buscar produto_id pelo nome (case insensitive)
+    const produtoResult = await client.query(
+      'SELECT produto_id FROM produtos WHERE nome ILIKE $1',
+      [produto_nome]
+    );
+
+    if (produtoResult.rows.length === 0) {
+      throw new Error('Produto não encontrado');
+    }
+
+    const produto_id = produtoResult.rows[0].produto_id;
+
+    // Buscar tamanho_id pelo nome, se tamanho informado
+    let tamanho_id = null;
+    if (tamanho) {
+      const tamanhoResult = await client.query(
+        'SELECT tamanho_id FROM tamanhos WHERE nome = $1',
+        [tamanho]
+      );
+
+      if (tamanhoResult.rows.length === 0) {
+        throw new Error('Tamanho não encontrado');
+      }
+
+      tamanho_id = tamanhoResult.rows[0].tamanho_id;
+    }
+
+    // Atualizar quantidade no estoque
+    const updateResult = await client.query(
+      `UPDATE estoque 
+       SET quantidade = $1
+       WHERE produto_id = $2 AND 
+             ($3::int IS NULL OR tamanho_id = $3)`,
+      [nova_quantidade, produto_id, tamanho_id]
+    );
+
+    if (updateResult.rowCount === 0) {
+      // Se não atualizou nenhum registro, pode ser que não exista, então insere um novo
+      await client.query(
+        `INSERT INTO estoque (produto_id, tamanho_id, quantidade)
+         VALUES ($1, $2, $3)`,
+        [produto_id, tamanho_id, nova_quantidade]
+      );
+    }
+
+    await client.query('COMMIT');
+
+    res.json({
+      success: true,
+      message: 'Estoque atualizado com sucesso',
+    });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Erro ao atualizar estoque:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Erro interno do servidor',
+    });
+  } finally {
+    client.release();
+  }
+});
+
 // GET /estoque/resumo - resumo do estoque por produto (compatível com seu schema)
 router.get('/resumo', async (req, res) => {
   try {
