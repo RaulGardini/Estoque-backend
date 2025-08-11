@@ -127,4 +127,57 @@ router.get('/vendas-valor', async (req, res) => {
   }
 });
 
+// DELETE /estoque/movimentacoes/limpar - Apaga todos os registros da tabela movimentacoes_estoque
+router.delete('/limpar', async (req, res) => {
+  try {
+    const query = 'DELETE FROM movimentacoes_estoque';
+    await pool.query(query);
+
+    res.json({
+      success: true,
+      message: 'Todas as movimentações de estoque foram apagadas com sucesso.'
+    });
+  } catch (error) {
+    console.error('Erro ao limpar movimentações de estoque:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor'
+    });
+  }
+});
+
+// DELETE /movimentacoes/:id - Excluir uma movimentação específica
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Verificar se a movimentação existe
+    const checkQuery = 'SELECT * FROM movimentacoes_estoque WHERE movimentacao_id = $1';
+    const checkResult = await pool.query(checkQuery, [id]);
+    
+    if (checkResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Movimentação não encontrada'
+      });
+    }
+    
+    // Excluir a movimentação
+    const deleteQuery = 'DELETE FROM movimentacoes_estoque WHERE movimentacao_id = $1';
+    await pool.query(deleteQuery, [id]);
+    
+    res.json({
+      success: true,
+      message: 'Movimentação excluída com sucesso'
+    });
+    
+  } catch (error) {
+    console.error('Erro ao excluir movimentação:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor'
+    });
+  }
+});
+
 module.exports = router;
