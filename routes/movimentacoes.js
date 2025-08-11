@@ -64,16 +64,16 @@ router.get('/', async (req, res) => {
 router.get('/vendas-valor', async (req, res) => {
   try {
     const precosProdutos = {
-      'Collant Básico Adulto': 80.00,
-      'Collant Básico Infantil': 60.00,
-      'Collant Preliminar Adulto': 80.00,
-      'Collant Preliminar Infantil': 60.00,
-      'Redinha': 25.00,
-      'Adereço': 15.00,
-      'Sapatilha Preta': 90.00,
-      'Sapatilha Rosa': 45.00,
-      'Meia Adulto': 15.00,
-      'Meia Infantil': 15.00,
+      'Collant Básico Adulto': 165.00,
+      'Collant Básico Infantil': 165.00,
+      'Collant Preliminar Adulto': 180.00,
+      'Collant Preliminar Infantil': 180.00,
+      'Redinha': 10.00,
+      'Adereço': 30.00,
+      'Sapatilha Preta': 65.00,
+      'Sapatilha Rosa': 65.00,
+      'Meia Adulto': 65.00,
+      'Meia Infantil': 65.00,
     };
 
     const query = `
