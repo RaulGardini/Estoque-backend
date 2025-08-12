@@ -64,8 +64,9 @@ router.get('/', async (req, res) => {
 router.get('/vendas-valor', async (req, res) => {
   try {
     const precosProdutos = {
-      'Collant Básico Adulto': 165.00,
-      'Collant Básico Infantil': 165.00,
+      'Collant Rosa': 165.00,
+      'Collant Básico Adulto': 180.00,
+      'Collant Básico Infantil': 180.00,
       'Collant Preliminar Adulto': 180.00,
       'Collant Preliminar Infantil': 180.00,
       'Redinha': 10.00,
