@@ -1,14 +1,19 @@
+require('dotenv').config();
 const { Pool } = require('pg');
 
 const pool = new Pool({
-  user: 'metabase_user',
-  host: 'postgresdatabase.c1yc2eo2crc4.us-east-2.rds.amazonaws.com',
-  database: 'metabase',
-  password: '1324657981010Raul',
-  port: 5432,
+  connectionString: process.env.DATABASE_URL,
   ssl: {
-    rejectUnauthorized: false // ignora verificação de certificado
+    rejectUnauthorized: false
   }
+});
+
+pool.on('connect', () => {
+  console.log('✅ Conectado ao Supabase com sucesso!');
+});
+
+pool.on('error', (err) => {
+  console.error('❌ Erro inesperado no pool de conexão:', err);
 });
 
 module.exports = pool;
